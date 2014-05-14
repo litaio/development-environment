@@ -6,7 +6,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.ssh.forward_agent = true
-  config.vm.box = "lita/development-environment"
+  config.vm.box = "litaio/development-environment"
   config.vm.hostname = "lita-dev"
   config.vm.network "forwarded_port", guest: 8080, host: 8080
 end
