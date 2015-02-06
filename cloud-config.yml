@@ -1,0 +1,50 @@
+#cloud-config
+
+coreos:
+  units:
+    - name: redis.service
+      command: start
+      enabled: true
+      content: |
+        [Unit]
+        Description=Redis data structure server
+        Requires=docker.service
+        After=docker.service
+
+        [Service]
+        TimeoutStartSec=0
+        Restart=always
+        ExecStartPre=-/usr/bin/docker kill redis
+        ExecStartPre=-/usr/bin/docker rm redis
+        ExecStartPre=/usr/bin/docker pull litaio/redis
+        ExecStart=/usr/bin/docker run --name redis -v /var/lib/redis:/var/lib/redis litaio/redis
+        ExecStop=/usr/bin/docker stop redis
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: lita.service
+      command: start
+      enabled: true
+      content: |
+        [Unit]
+        Description=Lita development environment
+        Requires=docker.service redis.service
+        After=docker.service redis.service
+
+        [Service]
+        TimeoutStartSec=0
+        ExecStartPre=-/usr/bin/docker kill lita
+        ExecStartPre=-/usr/bin/docker rm lita
+        ExecStartPre=-/usr/bin/docker pull litaio/ruby
+        ExecStart=/usr/bin/docker run\
+          --name lita \
+          -e HOME=/vagrant\
+          --link redis:redis\
+          -p 8080:8080\
+          -v /vagrant:/vagrant\
+          litaio/ruby\
+          /bin/sh -c 'gem install lita; while true; do sleep 1; done'
+        ExecStop=/usr/bin/docker stop lita
+
+        [Install]
+        WantedBy=multi-user.target
