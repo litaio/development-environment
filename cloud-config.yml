@@ -16,13 +16,13 @@ coreos:
         Restart=always
         ExecStartPre=-/usr/bin/docker kill redis
         ExecStartPre=-/usr/bin/docker rm redis
-        ExecStartPre=/usr/bin/docker pull litaio/redis
+        ExecStartPre=/usr/bin/docker pull litaio/redis:latest
         ExecStart=/usr/bin/docker run --name redis -v /var/lib/redis:/var/lib/redis litaio/redis
         ExecStop=/usr/bin/docker stop redis
 
         [Install]
         WantedBy=multi-user.target
-    - name: lita.service
+    - name: lita-dev.service
       command: start
       enabled: true
       content: |
@@ -33,18 +33,24 @@ coreos:
 
         [Service]
         TimeoutStartSec=0
-        ExecStartPre=-/usr/bin/docker kill lita
-        ExecStartPre=-/usr/bin/docker rm lita
-        ExecStartPre=-/usr/bin/docker pull litaio/ruby
+        ExecStartPre=-/usr/bin/docker kill lita-dev
+        ExecStartPre=-/usr/bin/docker rm lita-dev
+        ExecStartPre=-/usr/bin/docker build -t lita-dev /docker
         ExecStart=/usr/bin/docker run\
-          --name lita \
-          -e HOME=/vagrant\
+          --name lita-dev\
           --link redis:redis\
           -p 8080:8080\
-          -v /vagrant:/vagrant\
-          litaio/ruby\
-          /bin/sh -c 'gem install lita; while true; do sleep 1; done'
-        ExecStop=/usr/bin/docker stop lita
+          -v /workspace:/home/lita/workspace\
+          lita-dev
+        ExecStop=/usr/bin/docker stop lita-dev
 
         [Install]
         WantedBy=multi-user.target
+write_files:
+  - path: /opt/bin/lita-dev
+    permissions: 0755
+    owner: root
+    content: |
+      #!/bin/bash
+
+      exec docker exec -it lita-dev /bin/bash

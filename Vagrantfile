@@ -54,7 +54,12 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.network :private_network, ip: "172.17.8.254"
-  config.vm.synced_folder ".", "/vagrant", id: "vagrant", nfs: true, mount_options: ['nolock,vers=3,udp']
+  config.vm.synced_folder "docker", "/docker", id: "docker", nfs: true, mount_options: ['nolock,vers=3,udp']
+  config.vm.synced_folder "workspace", "/workspace", id: "workspace", nfs: true, mount_options: ['nolock,vers=3,udp']
+
+  config.vm.provision :docker do |docker|
+    docker.images = ["litaio/redis:latest", "litaio/ruby:latest"]
+  end
 
   config.vm.provision :file, source: "cloud-config.yml", destination: "/tmp/vagrantfile-user-data"
   config.vm.provision :shell, inline: "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", privileged: true
