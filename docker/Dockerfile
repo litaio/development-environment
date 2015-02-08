@@ -17,4 +17,4 @@ WORKDIR /home/lita/workspace
 
 RUN gem install lita
 
-CMD exec socat tcp-listen:6379,fork tcp-connect:$REDIS_PORT_TCP_6379_ADDR:$REDIS_PORT_TCP_6379_PORT
+CMD exec socat tcp-listen:6379,fork,reuseaddr tcp-connect:$REDIS_PORT_6379_TCP_ADDR:$REDIS_PORT_6379_TCP_PORT
