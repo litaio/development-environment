@@ -54,22 +54,22 @@ write_files:
       #!/bin/bash
 
       if ! systemctl is-active redis.service >/dev/null; then
-        echo -n "Redis is still starting up. Please wait"
+        echo -n "Redis is still starting up. Please wait."
 
         until systemctl is-active redis.service >/dev/null; do
-          echo -n "."
           sleep 1
+          echo -n "."
         done
 
         echo
       fi
 
       if ! systemctl is-active lita-dev.service >/dev/null; then
-        echo -n "The development environment is still starting up. Please wait"
+        echo -n "The development environment is still starting up. Please wait."
 
         until systemctl is-active lita-dev.service >/dev/null; do
-          echo -n "."
           sleep 1
+          echo -n "."
         done
 
         echo
