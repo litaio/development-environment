@@ -53,4 +53,26 @@ write_files:
     content: |
       #!/bin/bash
 
+      if ! systemctl is-active redis.service >/dev/null; then
+        echo -n "Redis is still starting up. Please wait"
+
+        until systemctl is-active redis.service >/dev/null; do
+          echo -n "."
+          sleep 1
+        done
+
+        echo
+      fi
+
+      if ! systemctl is-active lita-dev.service >/dev/null; then
+        echo -n "The development environment is still starting up. Please wait"
+
+        until systemctl is-active lita-dev.service >/dev/null; do
+          echo -n "."
+          sleep 1
+        done
+
+        echo
+      fi
+
       exec docker exec -it lita-dev /bin/bash
